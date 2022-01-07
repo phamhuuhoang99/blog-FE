@@ -1,16 +1,34 @@
 import "./singlePost.css";
+import { useLocation, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const SinglePost = () => {
+  const location = useLocation();
+  const postId = location.pathname.split("/")[2];
+  const [post, setPost] = useState(null);
+
+  useEffect(() => {
+    const getPost = async () => {
+      try {
+        const res = await axios.get(`/posts/${postId}`);
+        console.log(res);
+        setPost(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getPost();
+  }, [postId]);
+
   return (
     <div className="singlePost">
       <div className="singlePostWrapper">
-        <img
-          className="singlePostImg"
-          src="https://images.pexels.com/photos/6685428/pexels-photo-6685428.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
-          alt=""
-        />
+        {post?.photo && (
+          <img className="singlePostImg" src={post?.photo} alt="" />
+        )}
         <h1 className="singlePostTitle">
-          Lorem ipsum dolor
+          {post?.title}
           <div className="singlePostEdit">
             <i className="singlePostIcon far fa-edit"></i>
             <i className="singlePostIcon far fa-trash-alt"></i>
@@ -19,23 +37,13 @@ const SinglePost = () => {
         <div className="singlePostInfo">
           <span>
             Author:
-            <b className="singlePostAuthor">Safak</b>
+            <Link to={`/?user=${post?.username}`} className="link">
+              <b className="singlePostAuthor">{post?.username}</b>
+            </Link>
           </span>
-          <span>1 day ago</span>
+          <span>{new Date(post?.createdAt).toDateString()}</span>
         </div>
-        <p className="singlePostDesc">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde, quidem.
-          Sit dicta fuga iste, libero consequatur nihil obcaecati earum
-          laudantium tenetur nobis enim asperiores similique eos nostrum autem
-          dolores voluptates. Lorem ipsum dolor, sit amet consectetur
-          adipisicing elit. Sunt aperiam vel nesciunt omnis fugit culpa
-          excepturi quisquam in earum, impedit rem, obcaecati libero,
-          dignissimos facere aliquam quaerat dicta voluptatem tempora! Lorem
-          ipsum dolor, sit amet consectetur adipisicing elit. Saepe cum ex ut
-          distinctio ullam optio quasi! Molestias hic ab cupiditate voluptatibus
-          consequatur dolor voluptates, ea reprehenderit recusandae assumenda
-          sit? Ipsam.
-        </p>
+        <p className="singlePostDesc">{post?.desc}</p>
       </div>
     </div>
   );
